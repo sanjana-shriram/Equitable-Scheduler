@@ -1,1 +1,3 @@
-load_generator
+TraceGenerator
+FCFSScheduler
+LoadGenerator
