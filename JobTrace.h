@@ -4,6 +4,7 @@
 #include <string>
 
 struct JobTrace {
+    int jobID;
     int arrivalTime; // in milliseconds, represents time between jobs (not absolute arrival time)
     int jobSize;
     char demographic; // 'A' or 'B'

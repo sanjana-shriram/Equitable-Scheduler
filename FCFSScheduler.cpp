@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <queue>
 #include <thread>
 #include <mutex>
@@ -38,35 +39,37 @@ void jobReceiver(int client_sock) {
 
 void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
+    std::ofstream outFile("scheduler_results.txt"); // Open the output file
 
     while (!finishedReceiving || !jobQueue.empty()) {
         lock.lock();
         queueCondition.wait(lock, [] { return finishedReceiving || !jobQueue.empty(); });
+
         if (!jobQueue.empty()) {
             JobTrace job = jobQueue.front();
             jobQueue.pop();
             lock.unlock();
 
             auto startProcessingTime = std::chrono::system_clock::now();
-            auto waitTime = std::chrono::duration_cast<std::chrono::seconds>(startProcessingTime - job.qRecvTime).count();
+            auto waitTime = std::chrono::duration_cast<std::chrono::milliseconds>(startProcessingTime - job.qRecvTime).count();
 
-            // Simulate processing (e.g., by sleeping for jobSize seconds)
-            std::this_thread::sleep_for(std::chrono::seconds(job.jobSize));
+            std::this_thread::sleep_for(std::chrono::milliseconds(job.jobSize)); // Simulate processing
+
             auto endProcessingTime = std::chrono::system_clock::now();
-            auto endToEndLatency = std::chrono::duration_cast<std::chrono::seconds>(endProcessingTime - job.qRecvTime).count();
+            auto endToEndLatency = std::chrono::duration_cast<std::chrono::milliseconds>(endProcessingTime - job.qRecvTime).count();
 
-            std::cout << "Processed job with arrival time " << job.arrivalTime
-                      << ", size " << job.jobSize
-                      << ", demographic " << job.demographic
-                      << ", wait time " << waitTime << " seconds"
-                      << ", end-to-end latency " << endToEndLatency << " seconds." << std::endl;
-            
-            lock.lock();
+            outFile << "Processed job " << job.jobID 
+                    << " with wait time " << waitTime << " milliseconds"
+                    << ", end-to-end latency " << endToEndLatency << " milliseconds." << "\n";
+            outFile.flush();
         } else {
             lock.unlock();
         }
     }
+
+    outFile.close(); // Close the file stream
 }
+
 
 int main() {
     int server_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -101,8 +104,6 @@ int main() {
         std::cerr << "Accept failed" << std::endl;
         return 1;
     }
-
-    std::cout << "Connection accepted" << std::endl;
 
     std::thread receiverThread(jobReceiver, client_sock);
     std::thread processorThread(jobProcessor);

@@ -10,7 +10,7 @@
 
 int main() {
     std::ifstream inFile("traces.txt");
-    int arrivalTime, jobSize;
+    int jobID, arrivalTime, jobSize;
     char demographic;
 
     // Create socket
@@ -31,8 +31,8 @@ int main() {
         return 1;
     }
 
-    while (inFile >> arrivalTime >> jobSize >> demographic) {
-        JobTrace job{arrivalTime, jobSize, demographic};
+    while (inFile >> jobID >> arrivalTime >> jobSize >> demographic) {
+        JobTrace job{jobID, arrivalTime, jobSize, demographic};
         // Wait for arrival time to elapse, then send job to scheduler
         std::this_thread::sleep_for(std::chrono::milliseconds(arrivalTime));
         send(socket_desc, &job, sizeof(job), 0);

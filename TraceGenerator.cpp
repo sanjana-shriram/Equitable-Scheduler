@@ -22,10 +22,11 @@ int main() {
 
     for (int i = 0; i < numTraces; ++i) {
         JobTrace trace;
+        trace.jobID = i+1;
         trace.arrivalTime = static_cast<int>(generatePoissonInterval(lambda) * 1000); // Scale if necessary
         trace.jobSize = sizeDist(gen);
         trace.demographic = demoDist(gen) ? 'A' : 'B';
-        outFile << trace.arrivalTime << " " << trace.jobSize << " " << trace.demographic << "\n";
+        outFile << trace.jobID << " " << trace.arrivalTime << " " << trace.jobSize << " " << trace.demographic << "\n";
     }
 
     outFile.close();
