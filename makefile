@@ -15,9 +15,16 @@ LoadGenerator: LoadGenerator.cpp JobTrace.h
 FCFSScheduler: FCFSScheduler.cpp JobTrace.h
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o FCFSScheduler FCFSScheduler.cpp
 
-# Rule to run TraceGenerator to generate the trace file, then run LoadGenerator.
-run: TraceGenerator LoadGenerator
+# Rule 1: run the TraceGenerator
+trace: TraceGenerator
 	./TraceGenerator
+
+# Rule 2: run the Scheduler (in one terminal)
+scheduler: FCFSScheduler
+	./FCFSScheduler
+
+# Rule 3: run the LoadGenerator (with scheduler running in a separate terminal)
+test: LoadGenerator
 	./LoadGenerator
 
 # Clean the built programs
