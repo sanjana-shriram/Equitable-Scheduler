@@ -24,7 +24,7 @@ int main() {
         JobTrace trace;
         trace.jobID = i+1;
         trace.arrivalTime = static_cast<int>(generatePoissonInterval(lambda) * 1000); // Scale if necessary
-        trace.jobSize = sizeDist(gen);
+        trace.jobSize = sizeDist(gen); 
         trace.demographic = demoDist(gen) ? 'A' : 'B';
         outFile << trace.jobID << " " << trace.arrivalTime << " " << trace.jobSize << " " << trace.demographic << "\n";
     }

@@ -1,9 +1,8 @@
 /**
- * @file    LoadGenerator.cpp
+ * @file    LoadGenerator2.cpp
  *
- * @brief   Cues jobs sequentially
+ * @brief   Cues all jobs at time = 0
  */
-
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +13,7 @@
 #include <arpa/inet.h>
 #include "JobTrace.h"
 #include <unistd.h>
+#include <random>
 
 int main() {
     std::ifstream inFile("traces.txt");
@@ -40,8 +40,7 @@ int main() {
 
     while (inFile >> jobID >> arrivalTime >> jobSize >> demographic) {
         JobTrace job{jobID, arrivalTime, jobSize, demographic};
-        // Wait for arrival time to elapse, then send job to scheduler
-        std::this_thread::sleep_for(std::chrono::milliseconds(arrivalTime));
+        // Don't wait for arrival time to elapse before sending a job to scheduler
         send(socket_desc, &job, sizeof(job), 0);
     }
 
