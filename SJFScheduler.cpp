@@ -53,7 +53,7 @@ void jobReceiver(int client_sock) {
 
 void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
-    std::ofstream outFile("results_3_sjf_scheduler.txt"); // Open the output file
+    std::ofstream outFile("results_1_sjf_scheduler.txt"); // Open the output file
 
     while (!finishedReceiving || !jobQueue.empty()) {
         lock.lock();

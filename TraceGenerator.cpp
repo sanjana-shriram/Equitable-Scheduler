@@ -17,7 +17,7 @@ int main() {
     std::uniform_int_distribution<> sizeDist(1, 100); // Adjust range as needed
     std::bernoulli_distribution demoDist(0.5); // 50% chance for 'A' or 'B'
     
-    double lambda = 1.0; // Adjust lambda for Poisson process
+    double lambda = 50.0; // Adjust lambda for Poisson process
     const int numTraces = 100; // Number of traces to generate
 
     for (int i = 0; i < numTraces; ++i) {
