@@ -7,6 +7,7 @@ Forked from https://github.com/pradykaushik/system-load-generator
 
 1. Java version 11.
 2. Gradle version 6.3.
+3. Linux machine.
 
 ### Compile
 
@@ -17,11 +18,14 @@ Run `gradle build` to compile the source code.
 Run `gradle run` followed by command line arguments that you want to specify.<br>
 The following command line arguments are supported.
 
-`gradle run --args="--load-type cpuload"`
-`gradle run --args="--load-type const_cpuload"`
+Examples:
 
-1. `--help` - Display the help string.
-2. `--load-type <type>` - Specify the type of load that you want to generate. The following are the supported types.
+1. `gradle run --args="--load-type cpuload"`
+2. `gradle run --args="--load-type const_cpuload"`
+
+3. `--help` - Display the help string.
+4. `--load-type <type>` - Specify the type of load that you want to generate. The following are the supported types.
+
    - [cpuload](./src/main/java/loadgenerator/strategies/ConstIncreaseCPULoad.java) - CPU Load generator that
      constantly increases the CPU utilization of a machine from 1% to 100%. See [cpu-load-generator](#cpu-load-generator) for more information.
    - [loadaverage](./src/main/java/loadgenerator/strategies/ConstIncreaseLoadAverage.java) - 1min load average
@@ -29,6 +33,8 @@ The following command line arguments are supported.
    - [cpuload_memorypressure](./src/main/java/loadgenerator/strategies/CPULoadGeneratorWithMemoryPressure.java) -
      Generate CPU load with memory pressure. See [cpu-load-generator-with-memory-pressure](#cpu-load-generator-with-memory-pressure) for more information.
    - [const_cpuload](./src/main/java/loadgenerator/strategies/ConstantCPULoad.java) - Generate constant CPU load for configured duration. See [constant-cpu-load](#constant-cpu-load-generator) for more information.
+
+5. To monitor the CPU load on the machine, execute the `top` command and then press `1`. This will display the usage for each CPU core individually.
 
 ## Load Generators
 
