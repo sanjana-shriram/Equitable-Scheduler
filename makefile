@@ -44,16 +44,8 @@ sjfprescheduler: SJFPreScheduler
 	./SJFPreScheduler
 
 # Rule 5: run the LoadGenerator (with scheduler running in a separate terminal)
-test: LoadGenerator
+loadgen: LoadGenerator
 	./LoadGenerator
-
-# Rule 6: run the LoadGenerator2 (with a preemptive scheduler running in a separate terminal)
-test: LoadGenerator2
-	./LoadGenerator2
-
-# Rule 7: run the LoadGenerator3 (with a preemptive scheduler running in a separate terminal)
-test: LoadGenerator3
-	./LoadGenerator3
 
 # Clean the built programs
 clean:

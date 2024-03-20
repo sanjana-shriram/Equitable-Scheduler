@@ -17,15 +17,19 @@ int main() {
     std::uniform_int_distribution<> sizeDist(1, 100); // Adjust range as needed
     std::bernoulli_distribution demoDist(0.5); // 50% chance for 'A' or 'B'
     
-    double lambda = 50.0; // Adjust lambda for Poisson process
+    double lambda = 1000.0; // Adjust lambda for Poisson process
     const int numTraces = 100; // Number of traces to generate
 
     for (int i = 0; i < numTraces; ++i) {
         JobTrace trace;
         trace.jobID = i+1;
         trace.arrivalTime = static_cast<int>(generatePoissonInterval(lambda) * 1000); // Scale if necessary
-        trace.jobSize = sizeDist(gen); 
         trace.demographic = demoDist(gen) ? 'A' : 'B';
+        // if demographic 'A', set jobSize to 2x jobSize
+        trace.jobSize = sizeDist(gen); 
+        if (trace.demographic == 'A') {
+            trace.jobSize = trace.jobSize * 2;
+        }
         outFile << trace.jobID << " " << trace.arrivalTime << " " << trace.jobSize << " " << trace.demographic << "\n";
     }
 
