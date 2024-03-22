@@ -1,6 +1,7 @@
 # Compiler settings - Can be customized.
 CXX = g++
-CXXFLAGS = -Wall -std=c++11
+# CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -std=c++11 -Wall -Wextra -Wno-c++11-extensions
 LDFLAGS = -pthread # Adding linker flags for pthread if using threads
 
 # Build the TraceGenerator, LoadGenerator, and Scheduler programs.

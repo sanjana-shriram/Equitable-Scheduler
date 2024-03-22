@@ -1,10 +1,3 @@
-/**
- * @file    LoadGenerator.cpp
- *
- * @brief   Cues jobs sequentially
- */
-
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -14,11 +7,27 @@
 #include <arpa/inet.h>
 #include "JobTrace.h"
 #include <unistd.h>
+#include <sstream> // For constructing the file name
 
-int main() {
-    std::ifstream inFile("traces.txt");
-    int jobID, arrivalTime, jobSize;
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <arrival rate>" << std::endl;
+        return 1;
+    }
+
+    // Construct the input file name based on the arrival rate
+    std::ostringstream filename;
+    filename << "Traces/traces_" << argv[1] << ".txt";
+    std::ifstream inFile(filename.str());
+    if (!inFile.is_open()) {
+        std::cerr << "Could not open file: " << filename.str() << std::endl;
+        return 1;
+    }
+
+    int jobID, arrivalTime, jobSize, arrivalRate;
     char demographic;
+    // std::chrono::time_point<std::chrono::system_clock> qRecvTime = std::chrono::system_clock::now();
+    // std::chrono::system_clock::now();
 
     // Create socket
     int socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -35,15 +44,25 @@ int main() {
     // Connect to scheduler
     if (connect(socket_desc, (struct sockaddr*)&server, sizeof(server)) < 0) {
         std::cerr << "Connection failed";
+        close(socket_desc);
         return 1;
     }
 
-    while (inFile >> jobID >> arrivalTime >> jobSize >> demographic) {
-        JobTrace job{jobID, arrivalTime, jobSize, demographic};
+    while (inFile >> jobID >> arrivalTime >> jobSize >> arrivalRate >> demographic) {
+        // JobTrace job{jobID, arrivalTime, jobSize, arrivalRate, demographic, std::chrono::system_clock::now()};
+        JobTrace job;
+        job.jobID = jobID;
+        job.arrivalTime = arrivalTime;
+        job.jobSize = jobSize;
+        job.arrivalRate = arrivalRate;
+        job.demographic = demographic;
+        job.qRecvTime = std::chrono::system_clock::now();
+
         // Wait for arrival time to elapse, then send job to scheduler
         std::this_thread::sleep_for(std::chrono::milliseconds(arrivalTime));
         send(socket_desc, &job, sizeof(job), 0);
     }
+
 
     inFile.close();
     close(socket_desc);

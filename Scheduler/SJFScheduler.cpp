@@ -53,7 +53,7 @@ void jobReceiver(int client_sock) {
 
 void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
-    std::ofstream outFile("results_1_sjf_scheduler.txt"); // Open the output file
+    int arrivalRate = 0;
 
     while (!finishedReceiving || !jobQueue.empty()) {
         lock.lock();
@@ -63,6 +63,8 @@ void jobProcessor() {
             JobTrace job = jobQueue.front();
             jobQueue.pop_front();
             lock.unlock();
+
+            arrivalRate = job.arrivalRate;
 
             auto startProcessingTime = std::chrono::system_clock::now();
             auto waitTime = std::chrono::duration_cast<std::chrono::milliseconds>(startProcessingTime - job.qRecvTime).count();
@@ -81,11 +83,12 @@ void jobProcessor() {
             // Update total execution time
             totalExecutionTime += job.jobSize;
 
-            outFile << "Processed job " << job.jobID 
-                    << " of size " << job.jobSize
-                    << " with wait time " << waitTime << " milliseconds"
-                    << ", end-to-end latency " << endToEndLatency << " milliseconds." << "\n";
-            outFile.flush();
+            // std::ofstream outFile("results_1_sjf_scheduler.txt"); // Open the output file
+            // outFile << "Processed job " << job.jobID 
+            //         << " of size " << job.jobSize
+            //         << " with wait time " << waitTime << " milliseconds"
+            //         << ", end-to-end latency " << endToEndLatency << " milliseconds." << "\n";
+            // outFile.flush();
 
             // Increment total jobs processed
             totalJobsProcessed++;
@@ -98,17 +101,17 @@ void jobProcessor() {
     double averageWaitTime = totalWaitTime / static_cast<double>(totalJobsProcessed);
     double averageLatency = totalLatency / static_cast<double>(totalJobsProcessed);
 
+    std::ofstream outFile("results_sjf_scheduler.csv", std::ios::app);
+    
    // Print statistics to the file
-    outFile << "\nStatistics:" << "\n";
-    outFile << "Total execution time for all jobs: " << totalExecutionTime << " milliseconds" << "\n";
-    outFile << "Average wait time: " << averageWaitTime << " milliseconds" << "\n";
-    outFile << "Average latency: " << averageLatency << " milliseconds" << "\n";
+    outFile << arrivalRate << ", " << totalExecutionTime << ", " << averageWaitTime << ", " << averageLatency  << "\n";
     outFile.flush(); // Ensure statistics are immediately written to the file
     outFile.close(); // Close the file stream
 }
 
 
 int main() {
+    
     int server_desc = socket(AF_INET, SOCK_STREAM, 0);
     if (server_desc == -1) {
         std::cerr << "Could not create socket";
@@ -134,22 +137,24 @@ int main() {
     
     std::cout << "Waiting for incoming connections..." << std::endl;
 
-    struct sockaddr_in client;
-    int c = sizeof(struct sockaddr_in);
-    int client_sock = accept(server_desc, (struct sockaddr*)&client, (socklen_t*)&c);
-    if (client_sock < 0) {
-        std::cerr << "Accept failed" << std::endl;
-        return 1;
+    while(true) {
+        struct sockaddr_in client;
+        int c = sizeof(struct sockaddr_in);
+        int client_sock = accept(server_desc, (struct sockaddr*)&client, (socklen_t*)&c);
+        if (client_sock < 0) {
+            std::cerr << "Accept failed" << std::endl;
+            return 1;
+        }
+
+        std::thread receiverThread(jobReceiver, client_sock);
+        std::thread processorThread(jobProcessor);
+
+        receiverThread.join();
+        processorThread.join();
+
+        close(client_sock);
     }
-
-    std::thread receiverThread(jobReceiver, client_sock);
-    std::thread processorThread(jobProcessor);
-
-    receiverThread.join();
-    processorThread.join();
-
-    close(client_sock);
-    close(server_desc);
-
+ 
+    close(server_desc); 
     return 0;
 }
