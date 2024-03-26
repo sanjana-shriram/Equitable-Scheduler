@@ -5,19 +5,13 @@ CXXFLAGS = -std=c++11 -Wall -Wextra -Wno-c++11-extensions
 LDFLAGS = -pthread # Adding linker flags for pthread if using threads
 
 # Build the TraceGenerator, LoadGenerator, and Scheduler programs.
-all: TraceGenerator LoadGenerator LoadGenerator2 LoadGenerator3 FCFSScheduler SJFScheduler SJFPreScheduler
+all: TraceGenerator LoadGenerator FCFSScheduler SJFScheduler SJFPreScheduler
 
 TraceGenerator: TraceGenerator.cpp JobTrace.h
 	$(CXX) $(CXXFLAGS) -o TraceGenerator TraceGenerator.cpp
 
 LoadGenerator: LoadGenerator.cpp JobTrace.h
 	$(CXX) $(CXXFLAGS) -o LoadGenerator LoadGenerator.cpp
-
-LoadGenerator2: LoadGenerator2.cpp JobTrace.h
-	$(CXX) $(CXXFLAGS) -o LoadGenerator2 LoadGenerator2.cpp	
-
-LoadGenerator3: LoadGenerator3.cpp JobTrace.h
-	$(CXX) $(CXXFLAGS) -o LoadGenerator3 LoadGenerator3.cpp	
 
 FCFSScheduler: FCFSScheduler.cpp JobTrace.h
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o FCFSScheduler FCFSScheduler.cpp
@@ -50,4 +44,4 @@ loadgen: LoadGenerator
 
 # Clean the built programs
 clean:
-	rm -f TraceGenerator LoadGenerator LoadGenerator2 LoadGenerator3 FCFSScheduler SJFScheduler SJFPreScheduler
+	rm -f TraceGenerator LoadGenerator FCFSScheduler SJFScheduler SJFPreScheduler

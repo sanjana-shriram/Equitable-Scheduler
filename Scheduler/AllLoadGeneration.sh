@@ -10,7 +10,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Loop through a range of arrival rates
-for ((rate = 5; rate <= 10; rate++)) # Adjust this loop to cover your desired range of arrival rates
+for ((rate = 1; rate <= 10; rate+=4))
 do
    # Execute the program with the current arrival rate
    ./LoadGenerator $rate

@@ -10,7 +10,9 @@ if [ $? -ne 0 ]; then
 fi
 
 # Loop through a range of arrival rates
-for ((rate = 5; rate <= 10; rate++)) # Example: rates from 5 to 10 with step of 1
+# for ((rate = 1; rate <= 1000; rate++)) # Example: rates from 5 to 10 with step of 1
+for ((rate = 1; rate <= 10; rate+=4))
+
 do
    # Execute the program with the current arrival rate
    ./TraceGenerator $rate
