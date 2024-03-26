@@ -40,7 +40,12 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < numTraces; ++i) {
         JobTrace trace;
         trace.jobID = i+1;
-        trace.arrivalTime = static_cast<int>(generatePoissonInterval(lambda) * 1000); // Scale if necessary
+
+        double arrivalTimeDouble = generatePoissonInterval(lambda) * 1000; // Convert to milliseconds
+        std::cout << "Generated arrival time (double): " << arrivalTimeDouble << std::endl;
+        // trace.arrivalTime = static_cast<int>(arrivalTimeDouble);
+        trace.arrivalTime = arrivalTimeDouble;
+        
         trace.arrivalRate = static_cast<int>(lambda);
         trace.demographic = demoDist(gen) ? 'A' : 'B';
 
