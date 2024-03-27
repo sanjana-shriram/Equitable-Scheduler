@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> sizeDist(1, 100); // Adjust range as needed
+    std::uniform_int_distribution<> sizeDist(1, 10); // Adjust range as needed
     std::bernoulli_distribution demoDist(0.5); // 50% chance for 'A' or 'B'
     
-    const int numTraces = 100; // Number of traces to generate
+    const int numTraces = 500; // Number of traces to generate
 
     for (int i = 0; i < numTraces; ++i) {
         JobTrace trace;
@@ -43,17 +43,16 @@ int main(int argc, char* argv[]) {
 
         double arrivalTimeDouble = generatePoissonInterval(lambda) * 1000; // Convert to milliseconds
         std::cout << "Generated arrival time (double): " << arrivalTimeDouble << std::endl;
-        // trace.arrivalTime = static_cast<int>(arrivalTimeDouble);
-        trace.arrivalTime = arrivalTimeDouble;
+        trace.arrivalTime = static_cast<int>(arrivalTimeDouble);
         
         trace.arrivalRate = static_cast<int>(lambda);
         trace.demographic = demoDist(gen) ? 'A' : 'B';
 
         // if demographic 'A', set jobSize to 2x jobSize
         trace.jobSize = sizeDist(gen); 
-        if (trace.demographic == 'A') {
-            trace.jobSize = trace.jobSize * 2;
-        }
+        // if (trace.demographic == 'A') {
+        //     trace.jobSize = trace.jobSize * 2;
+        // }
         outFile << trace.jobID << " " << trace.arrivalTime << " " << trace.jobSize << " " << trace.arrivalRate << " " << trace.demographic << "\n";
     }
 

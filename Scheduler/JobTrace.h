@@ -6,7 +6,7 @@
 
 struct JobTrace {
     int jobID;
-    double arrivalTime; // in milliseconds, represents time between jobs (not absolute arrival time)
+    int arrivalTime; // in milliseconds, represents time between jobs (not absolute arrival time)
     int jobSize;
     int arrivalRate;
     char demographic; // 'A' or 'B'

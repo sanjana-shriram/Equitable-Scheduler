@@ -4,9 +4,7 @@ We are studying bias in data center scheduling algorithms. We are generating syn
 
 This project is still in development, however here is our current progress.
 
-We generate 2 synthetic loads:
-1. Load 1 - cues jobs according to poisson random process
-2. Load 2 - cues all jobs at time = 0
+We generate jobs according to poisson random process
 
 We utilize 3 different scheduling algorithms with the following characteristics:
 1. First Come First Serve

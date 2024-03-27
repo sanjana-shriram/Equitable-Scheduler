@@ -1,5 +1,7 @@
-# TraceGenerator
-# FCFSScheduler
-# LoadGenerator
+TraceGenerator
+FCFSScheduler
+LoadGenerator
 CPULoadGenerator
+Scheduler/Traces
+Scheduler/Results
 .vscode

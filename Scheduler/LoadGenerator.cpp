@@ -10,11 +10,13 @@
 #include <sstream> // For constructing the file name
 
 int main(int argc, char* argv[]) {
+    std::cout << "entering main" << std::endl;
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <arrival rate>" << std::endl;
         return 1;
     }
 
+    std::cout << "constructing input file name" << std::endl;
     // Construct the input file name based on the arrival rate
     std::ostringstream filename;
     filename << "Traces/traces_" << argv[1] << ".txt";
@@ -36,6 +38,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    std::cout << "created socket" << std::endl;
     struct sockaddr_in server;
     server.sin_addr.s_addr = inet_addr("127.0.0.1");
     server.sin_family = AF_INET;
@@ -58,11 +61,12 @@ int main(int argc, char* argv[]) {
         job.demographic = demographic;
         job.qRecvTime = std::chrono::system_clock::now();
 
+        // std::cout << "Sending Job:" << std::endl;
+        // std::cout << "Job ID: " << job.jobID << std::endl;
         // Wait for arrival time to elapse, then send job to scheduler
         std::this_thread::sleep_for(std::chrono::milliseconds(arrivalTime));
         send(socket_desc, &job, sizeof(job), 0);
     }
-
 
     inFile.close();
     close(socket_desc);

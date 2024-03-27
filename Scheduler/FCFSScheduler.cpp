@@ -14,6 +14,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <vector>
+#include <algorithm>
 #include "JobTrace.h" // Your JobTrace structure needs to be defined
 
 std::queue<JobTrace> jobQueue;
@@ -30,6 +32,8 @@ void jobReceiver(int client_sock) {
         JobTrace job;
         ssize_t read_size = recv(client_sock, &job, sizeof(job), 0);
         if (read_size > 0) {
+            // std::cout << "received a job from client" << std::endl;
+            // std::cout << "Job ID: " << job.jobID << std::endl;
             std::lock_guard<std::mutex> lock(queueMutex);
             job.qRecvTime = std::chrono::system_clock::now();
             jobQueue.push(job);
@@ -49,7 +53,9 @@ void jobReceiver(int client_sock) {
 
 void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
-    std::ofstream outFile("results_1_fcfs_scheduler.txt"); // Open the output file
+    std::ofstream outFile("Results/fcfs_scheduler_results.csv", std::ios_base::app); // Open the output file in append mode
+    std::vector<int> latencies; // Store wait times for all jobs
+    double arrivalRate;
 
     while (!finishedReceiving || !jobQueue.empty()) {
         lock.lock();
@@ -70,6 +76,9 @@ void jobProcessor() {
 
             auto endProcessingTime = std::chrono::system_clock::now();
             auto endToEndLatency = std::chrono::duration_cast<std::chrono::milliseconds>(endProcessingTime - job.qRecvTime).count();
+            
+            // Add each latency to the vector
+            latencies.push_back(endToEndLatency);
 
             // Update total latency
             totalLatency += endToEndLatency;
@@ -77,14 +86,16 @@ void jobProcessor() {
             // Update total execution time
             totalExecutionTime += job.jobSize;
 
-            outFile << "Processed job " << job.jobID 
-                    << " of size " << job.jobSize
-                    << " with wait time " << waitTime << " milliseconds"
-                    << ", end-to-end latency " << endToEndLatency << " milliseconds." << "\n";
-            outFile.flush();
+            // outFile << "Processed job " << job.jobID 
+            //         << " of size " << job.jobSize
+            //         << " with wait time " << waitTime << " milliseconds"
+            //         << ", end-to-end latency " << endToEndLatency << " milliseconds." << "\n";
+            // outFile.flush();
 
             // Increment total jobs processed
             totalJobsProcessed++;
+            std::cout << "total jobs processed: " << totalJobsProcessed << std::endl;
+            arrivalRate = job.arrivalRate;
         } else {
             lock.unlock();
         }
@@ -94,15 +105,23 @@ void jobProcessor() {
     double averageWaitTime = totalWaitTime / static_cast<double>(totalJobsProcessed);
     double averageLatency = totalLatency / static_cast<double>(totalJobsProcessed);
 
+    std::sort(latencies.begin(), latencies.end()); // Sort wait times to find percentiles
+    
+    // Calculate 99th percentile tail latency
+    int percentileIndex = std::max(0, static_cast<int>(latencies.size() * 0.99) - 1);
+    int percentile99th = latencies.empty() ? 0 : latencies[percentileIndex];
+
+    // write job arrival rate, total execution time, average wait time, and average latency to the csv file
+    outFile << arrivalRate << "," << totalExecutionTime << "," << averageWaitTime << "," << averageLatency << "," << percentile99th << "\n";
+
     // Print statistics to the file
-    outFile << "\nStatistics:" << "\n";
-    outFile << "Total execution time for all jobs: " << totalExecutionTime << " milliseconds" << "\n";
-    outFile << "Average wait time: " << averageWaitTime << " milliseconds" << "\n";
-    outFile << "Average latency: " << averageLatency << " milliseconds" << "\n";
+    std::cout << "Total execution time for all jobs: " << totalExecutionTime << std::endl;
+    std::cout << "Average wait time: " << averageWaitTime << std::endl;
+    std::cout << "Average latency: " << averageLatency << std::endl;
+    std::cout << "99th percentile tail latency: " << percentile99th << std::endl;
     outFile.flush(); // Ensure statistics are immediately written to the file
     outFile.close(); // Close the file stream
 }
-
 
 int main() {
     int server_desc = socket(AF_INET, SOCK_STREAM, 0);
