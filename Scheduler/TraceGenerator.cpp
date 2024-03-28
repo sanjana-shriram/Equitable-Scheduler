@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> sizeDist(1, 10); // Adjust range as needed
-    std::bernoulli_distribution demoDist(0.5); // 50% chance for 'A' or 'B'
+    std::bernoulli_distribution demoDist(0.1); // % of 'A' jobs
     
     const int numTraces = 500; // Number of traces to generate
 
@@ -50,9 +50,9 @@ int main(int argc, char* argv[]) {
 
         // if demographic 'A', set jobSize to 2x jobSize
         trace.jobSize = sizeDist(gen); 
-        // if (trace.demographic == 'A') {
-        //     trace.jobSize = trace.jobSize * 2;
-        // }
+        if (trace.demographic == 'A') {
+            trace.jobSize = trace.jobSize * 2;
+        }
         outFile << trace.jobID << " " << trace.arrivalTime << " " << trace.jobSize << " " << trace.arrivalRate << " " << trace.demographic << "\n";
     }
 

@@ -11,7 +11,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Loop through a range of arrival rates
-for ((rate = 20; rate <= 5000; rate += 20))
+for ((rate = 20; rate <= 240; rate += 5))
 do
    echo "Starting FCFS Scheduler for arrival rate: $rate"
     # Start FCFS Scheduler in the background

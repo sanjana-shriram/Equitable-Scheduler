@@ -51,11 +51,27 @@ void jobReceiver(int client_sock) {
     queueCondition.notify_all(); // Ensure the processor thread can exit if waiting
 }
 
+double computeAverage(int total, int count) {
+    return count > 0 ? total / static_cast<double>(count) : 0;
+}
+
+int computePercentile(std::vector<int>& latencies, double percentile) {
+    if (latencies.empty()) return 0;
+    std::sort(latencies.begin(), latencies.end());
+    int index = static_cast<int>(std::ceil(percentile * latencies.size())) - 1;
+    index = std::max(0, std::min(index, static_cast<int>(latencies.size()) - 1));
+    return latencies[index];
+}
+
 void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
     std::ofstream outFile("Results/fcfs_scheduler_results.csv", std::ios_base::app); // Open the output file in append mode
-    std::vector<int> latencies; // Store wait times for all jobs
-    double arrivalRate;
+
+    std::vector<int> latencies, latenciesA, latenciesB; // Store latencies for all jobs, and separately for jobs A and B
+    int totalWaitTime = 0, totalWaitTimeA = 0, totalWaitTimeB = 0;
+    int totalLatency = 0, totalLatencyA = 0, totalLatencyB = 0;
+    int totalJobsProcessed = 0, totalJobsProcessedA = 0, totalJobsProcessedB = 0;
+    int totalExecutionTime = 0, totalExecutionTimeA = 0, totalExecutionTimeB = 0; // Execution time tracking
 
     while (!finishedReceiving || !jobQueue.empty()) {
         lock.lock();
@@ -68,58 +84,51 @@ void jobProcessor() {
 
             auto startProcessingTime = std::chrono::system_clock::now();
             auto waitTime = std::chrono::duration_cast<std::chrono::milliseconds>(startProcessingTime - job.qRecvTime).count();
-
-            // Update total wait time
-            totalWaitTime += waitTime;
-
             std::this_thread::sleep_for(std::chrono::milliseconds(job.jobSize)); // Simulate processing
-
             auto endProcessingTime = std::chrono::system_clock::now();
             auto endToEndLatency = std::chrono::duration_cast<std::chrono::milliseconds>(endProcessingTime - job.qRecvTime).count();
             
-            // Add each latency to the vector
+            
+            totalWaitTime += waitTime;
             latencies.push_back(endToEndLatency);
-
-            // Update total latency
             totalLatency += endToEndLatency;
-
-            // Update total execution time
-            totalExecutionTime += job.jobSize;
-
-            // outFile << "Processed job " << job.jobID 
-            //         << " of size " << job.jobSize
-            //         << " with wait time " << waitTime << " milliseconds"
-            //         << ", end-to-end latency " << endToEndLatency << " milliseconds." << "\n";
-            // outFile.flush();
-
-            // Increment total jobs processed
             totalJobsProcessed++;
-            std::cout << "total jobs processed: " << totalJobsProcessed << std::endl;
-            arrivalRate = job.arrivalRate;
+            totalExecutionTime += job.jobSize; // Update overall execution time
+            std::cout << "total exec time: " << totalExecutionTime << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
+            
+            if (job.demographic == 'A') { // Assuming job has a 'demographic' field
+                totalWaitTimeA += waitTime;
+                latenciesA.push_back(endToEndLatency);
+                totalLatencyA += endToEndLatency;
+                totalJobsProcessedA++;
+                totalExecutionTimeA += job.jobSize; // Update execution time for A
+                std::cout << "A exec time: " << totalExecutionTimeA << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
+            } else {
+                totalWaitTimeB += waitTime;
+                latenciesB.push_back(endToEndLatency);
+                totalLatencyB += endToEndLatency;
+                totalJobsProcessedB++;a
+                totalExecutionTimeB += job.jobSize; // Update execution time for B
+                std::cout << "B exec time: " << totalExecutionTimeB << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
+            }
         } else {
             lock.unlock();
         }
     }
 
-    // Calculate average wait time and average latency
-    double averageWaitTime = totalWaitTime / static_cast<double>(totalJobsProcessed);
-    double averageLatency = totalLatency / static_cast<double>(totalJobsProcessed);
+    // Compute and output statistics
+    outFile << totalExecutionTime << "," << totalExecutionTimeA << "," << totalExecutionTimeB
+            << "," << computeAverage(totalWaitTime, totalJobsProcessed)
+            << "," << computeAverage(totalWaitTimeA, totalJobsProcessedA)
+            << "," << computeAverage(totalWaitTimeB, totalJobsProcessedB)
+            << "," << computeAverage(totalLatency, totalJobsProcessed)
+            << "," << computeAverage(totalLatencyA, totalJobsProcessedA)
+            << "," << computeAverage(totalLatencyB, totalJobsProcessedB)
+            << "," << computePercentile(latencies, 0.99)
+            << "," << computePercentile(latenciesA, 0.99)
+            << "," << computePercentile(latenciesB, 0.99)
+            << std::endl;
 
-    std::sort(latencies.begin(), latencies.end()); // Sort wait times to find percentiles
-    
-    // Calculate 99th percentile tail latency
-    int percentileIndex = std::max(0, static_cast<int>(latencies.size() * 0.99) - 1);
-    int percentile99th = latencies.empty() ? 0 : latencies[percentileIndex];
-
-    // write job arrival rate, total execution time, average wait time, and average latency to the csv file
-    outFile << arrivalRate << "," << totalExecutionTime << "," << averageWaitTime << "," << averageLatency << "," << percentile99th << "\n";
-
-    // Print statistics to the file
-    std::cout << "Total execution time for all jobs: " << totalExecutionTime << std::endl;
-    std::cout << "Average wait time: " << averageWaitTime << std::endl;
-    std::cout << "Average latency: " << averageLatency << std::endl;
-    std::cout << "99th percentile tail latency: " << percentile99th << std::endl;
-    outFile.flush(); // Ensure statistics are immediately written to the file
     outFile.close(); // Close the file stream
 }
 

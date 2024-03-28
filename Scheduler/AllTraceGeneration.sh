@@ -11,7 +11,7 @@ fi
 
 # Loop through a range of arrival rates
 # for ((rate = 1; rate <= 1000; rate++)) # Example: rates from 5 to 10 with step of 1
-for ((rate = 20; rate <= 5000; rate += 20))
+for ((rate = 20; rate <= 240; rate += 5))
 
 do
    # Execute the program with the current arrival rate
