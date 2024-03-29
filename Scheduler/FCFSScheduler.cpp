@@ -67,11 +67,13 @@ void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
     std::ofstream outFile("Results/fcfs_scheduler_results.csv", std::ios_base::app); // Open the output file in append mode
 
+    std::vector<int> waitTimes, waitTimesA, waitTimesB; // Store wait times for all jobs, and separately for jobs A and B
     std::vector<int> latencies, latenciesA, latenciesB; // Store latencies for all jobs, and separately for jobs A and B
     int totalWaitTime = 0, totalWaitTimeA = 0, totalWaitTimeB = 0;
     int totalLatency = 0, totalLatencyA = 0, totalLatencyB = 0;
     int totalJobsProcessed = 0, totalJobsProcessedA = 0, totalJobsProcessedB = 0;
     int totalExecutionTime = 0, totalExecutionTimeA = 0, totalExecutionTimeB = 0; // Execution time tracking
+    int arrivalRate;
 
     while (!finishedReceiving || !jobQueue.empty()) {
         lock.lock();
@@ -82,34 +84,37 @@ void jobProcessor() {
             jobQueue.pop();
             lock.unlock();
 
+            arrivalRate = job.arrivalRate;
             auto startProcessingTime = std::chrono::system_clock::now();
             auto waitTime = std::chrono::duration_cast<std::chrono::milliseconds>(startProcessingTime - job.qRecvTime).count();
             std::this_thread::sleep_for(std::chrono::milliseconds(job.jobSize)); // Simulate processing
             auto endProcessingTime = std::chrono::system_clock::now();
             auto endToEndLatency = std::chrono::duration_cast<std::chrono::milliseconds>(endProcessingTime - job.qRecvTime).count();
             
-            
             totalWaitTime += waitTime;
+            waitTimes.push_back(waitTime);
             latencies.push_back(endToEndLatency);
             totalLatency += endToEndLatency;
             totalJobsProcessed++;
             totalExecutionTime += job.jobSize; // Update overall execution time
-            std::cout << "total exec time: " << totalExecutionTime << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
+            // std::cout << "total exec time: " << totalExecutionTime << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
             
             if (job.demographic == 'A') { // Assuming job has a 'demographic' field
                 totalWaitTimeA += waitTime;
+                waitTimesA.push_back(waitTime);
                 latenciesA.push_back(endToEndLatency);
                 totalLatencyA += endToEndLatency;
                 totalJobsProcessedA++;
                 totalExecutionTimeA += job.jobSize; // Update execution time for A
-                std::cout << "A exec time: " << totalExecutionTimeA << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
+                // std::cout << "A exec time: " << totalExecutionTimeA << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
             } else {
                 totalWaitTimeB += waitTime;
+                waitTimesB.push_back(waitTime);
                 latenciesB.push_back(endToEndLatency);
                 totalLatencyB += endToEndLatency;
-                totalJobsProcessedB++;a
+                totalJobsProcessedB++;
                 totalExecutionTimeB += job.jobSize; // Update execution time for B
-                std::cout << "B exec time: " << totalExecutionTimeB << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
+                // std::cout << "B exec time: " << totalExecutionTimeB << " job: " << job.jobID << " demographic " << job.demographic << std::endl;
             }
         } else {
             lock.unlock();
@@ -117,7 +122,10 @@ void jobProcessor() {
     }
 
     // Compute and output statistics
-    outFile << totalExecutionTime << "," << totalExecutionTimeA << "," << totalExecutionTimeB
+    outFile << arrivalRate
+            << "," << totalExecutionTime
+            << "," << totalExecutionTimeA 
+            << "," << totalExecutionTimeB
             << "," << computeAverage(totalWaitTime, totalJobsProcessed)
             << "," << computeAverage(totalWaitTimeA, totalJobsProcessedA)
             << "," << computeAverage(totalWaitTimeB, totalJobsProcessedB)
@@ -127,6 +135,9 @@ void jobProcessor() {
             << "," << computePercentile(latencies, 0.99)
             << "," << computePercentile(latenciesA, 0.99)
             << "," << computePercentile(latenciesB, 0.99)
+            << "," << computePercentile(waitTimes, 0.99)
+            << "," << computePercentile(waitTimesA, 0.99)
+            << "," << computePercentile(waitTimesB, 0.99)
             << std::endl;
 
     outFile.close(); // Close the file stream

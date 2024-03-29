@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Compile the program (select the scheduler you want to run)
-g++ -o FCFSScheduler FCFSScheduler.cpp
+# g++ -o FCFSScheduler FCFSScheduler.cpp
+g++ -o SJFScheduler SJFScheduler.cpp
 g++ -o LoadGenerator LoadGenerator.cpp
 
 # Check if compilation was successful
@@ -11,11 +12,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # Loop through a range of arrival rates
-for ((rate = 20; rate <= 240; rate += 5))
+for ((rate = 10; rate <= 150; rate += 5))
 do
-   echo "Starting FCFS Scheduler for arrival rate: $rate"
+   echo "Starting SJF Scheduler for arrival rate: $rate"
     # Start FCFS Scheduler in the background
-    ./FCFSScheduler &
+    # ./FCFSScheduler &
+    ./SJFScheduler &
     SCHEDULER_PID=$!
 
     sleep 1

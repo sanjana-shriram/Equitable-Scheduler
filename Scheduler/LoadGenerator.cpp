@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     // Construct the input file name based on the arrival rate
     std::ostringstream filename;
     // filename << "Traces/traces_" << argv[1] << ".txt";
-    filename << "Traces/traces_154_10_A_90_B.txt";
+    filename << "Traces/traces_80_10A_90B.txt";
     std::ifstream inFile(filename.str());
     if (!inFile.is_open()) {
         std::cerr << "Could not open file: " << filename.str() << std::endl;
