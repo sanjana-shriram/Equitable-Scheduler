@@ -67,7 +67,6 @@ int computePercentile(std::vector<int>& latencies, double percentile) {
 
 void jobProcessor() {
     std::unique_lock<std::mutex> lock(queueMutex, std::defer_lock);
-    // std::ofstream outFile("Results/sjf_scheduler_results.csv"); // Open the output file
     std::ofstream outFile("Results/sjf_scheduler_results.csv", std::ios_base::app);
     
     std::vector<int> waitTimes, waitTimesA, waitTimesB; // Store wait times for all jobs, and separately for jobs A and B
@@ -125,8 +124,8 @@ void jobProcessor() {
     }
 
     // Calculate average wait time and average latency
-    double averageWaitTime = totalWaitTime / static_cast<double>(totalJobsProcessed);
-    double averageLatency = totalLatency / static_cast<double>(totalJobsProcessed);
+    // double averageWaitTime = totalWaitTime / static_cast<double>(totalJobsProcessed);
+    // double averageLatency = totalLatency / static_cast<double>(totalJobsProcessed);
 
    // Print statistics to the file
     outFile << arrivalRate

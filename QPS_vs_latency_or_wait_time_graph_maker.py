@@ -26,32 +26,32 @@ def read_csv(filename):
 def plot_graphs(arrival_rate, total_execution_time, average_wait_time, average_latency, percentile99th):
     plt.figure(figsize=(10, 8))
 
-    # Plot Total Execution Time vs Arrival Rate
+    # Plot Total Execution Time vs QPS
     plt.subplot(4, 1, 1)
     plt.plot(arrival_rate, total_execution_time, marker='o', linestyle='-')
-    plt.title('Total Execution Time vs Arrival Rate')
-    plt.xlabel('Arrival Rate')
+    plt.title('Total Execution Time vs QPS')
+    plt.xlabel('QPS')
     plt.ylabel('Total Execution Time')
 
     # Plot Average Wait Time vs Arrival Rate
     plt.subplot(4, 1, 2)
     plt.plot(arrival_rate, average_wait_time, marker='o', linestyle='-')
-    plt.title('Average Wait Time vs Arrival Rate')
-    plt.xlabel('Arrival Rate')
+    plt.title('Average Wait Time vs QPS')
+    plt.xlabel('QPS')
     plt.ylabel('Average Wait Time')
 
     # Plot Average Latency vs Arrival Rate
     plt.subplot(4, 1, 3)
     plt.plot(arrival_rate, average_latency, marker='o', linestyle='-')
-    plt.title('Average Latency vs Arrival Rate')
-    plt.xlabel('Arrival Rate')
+    plt.title('Average Latency vs QPS')
+    plt.xlabel('QPS')
     plt.ylabel('Average Latency')
 
     # Plot 99th Percentile Latency vs Arrival Rate
     plt.subplot(4, 1, 4)
     plt.plot(arrival_rate, percentile99th, marker='o', linestyle='-')
-    plt.title('99th Percentile Latency vs Arrival Rate')
-    plt.xlabel('Arrival Rate')
+    plt.title('99th Percentile Latency vs QPS')
+    plt.xlabel('QPS')
     plt.ylabel('99th Percentile Latency')
 
     plt.tight_layout()
@@ -59,6 +59,6 @@ def plot_graphs(arrival_rate, total_execution_time, average_wait_time, average_l
 
 # Main function
 if __name__ == "__main__":
-    filename = 'Scheduler/Results/fcfs_scheduler_results.csv'  # Change this to your CSV file path
+    filename = 'Scheduler/Results/fcfs_scheduler_results_20_150_step_size_5.csv'  # Change this to your CSV file path
     arrival_rate, total_execution_time, average_wait_time, average_latency, percentile99th = read_csv(filename)
     plot_graphs(arrival_rate, total_execution_time, average_wait_time, average_latency, percentile99th)

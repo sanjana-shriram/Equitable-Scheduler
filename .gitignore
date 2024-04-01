@@ -3,5 +3,4 @@ FCFSScheduler
 LoadGenerator
 CPULoadGenerator
 Scheduler/Traces
-Scheduler/Results
 .vscode
