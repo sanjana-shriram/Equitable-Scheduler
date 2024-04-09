@@ -19,8 +19,8 @@ int main(int argc, char* argv[]) {
     std::cout << "constructing input file name" << std::endl;
     // Construct the input file name based on the arrival rate
     std::ostringstream filename;
-    filename << "Traces/traces_" << argv[1] << ".txt";
-    // filename << "Traces/traces_80_10A_90B.txt";
+    // filename << "Traces/traces_" << argv[1] << ".txt";
+    filename << "Traces/traces_80_10A_90B.txt";
     std::ifstream inFile(filename.str());
     if (!inFile.is_open()) {
         std::cerr << "Could not open file: " << filename.str() << std::endl;
@@ -70,11 +70,18 @@ int main(int argc, char* argv[]) {
         } else if (demographic == 'B') {
             bJobs.push_back(job);
         }
+        
+        // No queueing policy 
+        // std::this_thread::sleep_for(std::chrono::milliseconds(arrivalTime));
+        // send(socket_desc, &job, sizeof(job), 0);
     }
+
+    
+
     // get length of aJobs
     // int aJobsLength = aJobs.size();
 
-    // demographic ordering policy: 2 A for 1 B
+    // Batch Policy
     int aCount = 0;
     int bCount = 0;
     while (!aJobs.empty() && !bJobs.empty()) { 
