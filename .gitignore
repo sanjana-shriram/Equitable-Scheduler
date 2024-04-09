@@ -2,5 +2,4 @@ TraceGenerator
 FCFSScheduler
 LoadGenerator
 CPULoadGenerator
-Scheduler/Traces
 .vscode
