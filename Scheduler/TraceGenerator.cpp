@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> sizeDist(1, 10); // Adjust range as needed
-    std::bernoulli_distribution demoDist(0.1); // % of 'A' jobs
+    std::bernoulli_distribution demoDist(0.9); // % of 'A' jobs
     
     const int numTraces = 500; // Number of traces to generate
 

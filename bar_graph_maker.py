@@ -25,6 +25,7 @@ axs[0].set_title('Average Wait Time')
 axs[0].set_xlabel('Percentage of Jobs that are Demographic A')
 axs[0].set_ylabel('Time (ms)')
 axs[0].legend()
+axs[0].set_xlim(0, 800)  
 
 # Average Latency
 axs[1].bar(data["Percentage_A"] - 0.03, data["Avg_Latency_Overall"], width=0.02, label='Overall')
@@ -34,6 +35,7 @@ axs[1].set_title('Average Latency')
 axs[1].set_xlabel('Percentage of Jobs that are Demographic A')
 axs[1].set_ylabel('Time (ms)')
 axs[1].legend()
+axs[1].set_xlim(0, 800)  
 
 # 99th Percentile Latency
 axs[2].bar(data["Percentage_A"] - 0.03, data["99th_Percentile_Overall"], width=0.02, label='Overall')
@@ -43,6 +45,7 @@ axs[2].set_title('99th Percentile Latency')
 axs[2].set_xlabel('Percentage of Jobs that are Demographic A')
 axs[2].set_ylabel('Time (ms)')
 axs[2].legend()
+axs[2].set_xlim(0, 800) 
 
 plt.tight_layout()
 plt.show()

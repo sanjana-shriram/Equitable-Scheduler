@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     // Construct the input file name based on the arrival rate
     std::ostringstream filename;
     // filename << "Traces/traces_" << argv[1] << ".txt";
-    filename << "Traces/traces_80_10A_90B.txt";
+    filename << "Traces/traces_80_90A_10B.txt";
     std::ifstream inFile(filename.str());
     if (!inFile.is_open()) {
         std::cerr << "Could not open file: " << filename.str() << std::endl;
@@ -81,31 +81,42 @@ int main(int argc, char* argv[]) {
     // get length of aJobs
     // int aJobsLength = aJobs.size();
 
-    // Batch Policy
+    // Batch Policy (switched A and B)
     int aCount = 0;
     int bCount = 0;
     while (!aJobs.empty() && !bJobs.empty()) { 
-        if (bCount == 1 || aCount != 5) { // change number 
-            // send A job
-            JobTrace job = aJobs.front();
-            // wait before sending
-            std::this_thread::sleep_for(std::chrono::milliseconds(job.arrivalTime));
-            send(socket_desc, &job, sizeof(job), 0);
-            aJobs.erase(aJobs.begin());
-            aCount++;
-            bCount = 0;
-           
-        } else {
+        // Code for reverse batch is implemented currently 
+        if (aCount == 1 || bCount != 5) { // change number 
             // send B job
             JobTrace job = bJobs.front();
             // wait before sending
             std::this_thread::sleep_for(std::chrono::milliseconds(job.arrivalTime));
             send(socket_desc, &job, sizeof(job), 0);
             bJobs.erase(bJobs.begin());
-            bCount = 1;
+            bCount++;
             aCount = 0;
+           
+        } else {
+            // send B job
+            JobTrace job = aJobs.front();
+            // wait before sending
+            std::this_thread::sleep_for(std::chrono::milliseconds(job.arrivalTime));
+            send(socket_desc, &job, sizeof(job), 0);
+            aJobs.erase(aJobs.begin());
+            aCount = 1;
+            bCount = 0;
         }
     }
+    
+    // Finish running the B jobs with no policy
+    while (!bJobs.empty()) {
+        JobTrace job = bJobs.front();
+        // wait before sending
+        std::this_thread::sleep_for(std::chrono::milliseconds(job.arrivalTime));
+        send(socket_desc, &job, sizeof(job), 0);
+        bJobs.erase(bJobs.begin());
+    }
+
 
     // Finish running the A jobs with no policy
     while (!aJobs.empty()) {
@@ -114,15 +125,6 @@ int main(int argc, char* argv[]) {
         std::this_thread::sleep_for(std::chrono::milliseconds(job.arrivalTime));
         send(socket_desc, &job, sizeof(job), 0);
         aJobs.erase(aJobs.begin());
-    }
-
-    // Finish running the B jobs with no policy
-    while (!bJobs.empty()) {
-        JobTrace job = bJobs.front();
-        // wait before sending
-        std::this_thread::sleep_for(std::chrono::milliseconds(job.arrivalTime));
-        send(socket_desc, &job, sizeof(job), 0);
-        bJobs.erase(bJobs.begin());
     }
 
     inFile.close();

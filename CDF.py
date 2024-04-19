@@ -1,46 +1,48 @@
-import csv
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
-# Function to read data from CSV file
-def read_csv(filename):
-    latenciesA = []
-    latenciesB = []
+# Latency data for demographic A and B
+latencies_A = [2,7,10,13,16,20,21,23,31,50,127]
+latencies_B = [1,3,5,6,8,9,11,12,15,19,71]
 
-    with open(filename, 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            latenciesA.extend(map(float, row[5:15]))  # Change column indices according to your data
-            latenciesB.extend(map(float, row[15:25]))  # Change column indices according to your data
+# Wait time data for demographic A and B
+wait_times_A = [0,0,0,0,0,1,5,10,13,25,107]
+wait_times_B = [0,0,0,0,0,0,2,4,7,11,58]
 
-    return latenciesA, latenciesB
+# Function to calculate CDF
+def calculate_cdf(data):
+    data_sorted = np.sort(data)
+    cdf_values = np.arange(1, len(data_sorted) + 1) / len(data_sorted)
+    return data_sorted, cdf_values
 
-# Function to plot CDF
-def plot_cdf(latenciesA, latenciesB):
-    plt.figure(figsize=(10, 5))
+# Calculate CDF for latencies
+latencies_A_sorted, cdf_latencies_A = calculate_cdf(latencies_A)
+latencies_B_sorted, cdf_latencies_B = calculate_cdf(latencies_B)
 
-    # Calculate CDF values
-    sorted_data_A = np.sort(latenciesA)
-    sorted_data_B = np.sort(latenciesB)
-    y_values_A = np.arange(0, len(sorted_data_A)) / len(sorted_data_A)
-    y_values_B = np.arange(0, len(sorted_data_B)) / len(sorted_data_B)
+# Calculate CDF for wait times
+wait_times_A_sorted, cdf_wait_times_A = calculate_cdf(wait_times_A)
+wait_times_B_sorted, cdf_wait_times_B = calculate_cdf(wait_times_B)
 
-    # Plot CDF for Demographic A
-    plt.plot(sorted_data_A, y_values_A, marker='o', linestyle='-', label='Demographic A')
+# Plot CDF for latencies
+plt.figure(figsize=(5, 5))
+plt.plot(latencies_A_sorted, cdf_latencies_A, marker='o', linestyle='-', label='Demographic A')
+plt.plot(latencies_B_sorted, cdf_latencies_B, marker='o', linestyle='-', label='Demographic B')
+plt.title('Reverse Batch 0.1 Latency CDF')
+plt.xlabel('Latency (ms)')
+plt.ylabel('CDF')
+plt.xlim(0, 800)
+plt.legend()
+plt.grid(True)
+plt.show()
 
-    # Plot CDF for Demographic B
-    plt.plot(sorted_data_B, y_values_B, marker='o', linestyle='-', label='Demographic B')
-
-    plt.title('Cumulative Distribution Function (CDF) of Latencies')
-    plt.xlabel('Latency')
-    plt.ylabel('CDF')
-    plt.legend()
-    plt.grid(True)
-
-    plt.show()
-
-# Main function
-if __name__ == "__main__":
-    filename = 'Scheduler/Results/sjf_'  # Change this to your CSV file path
-    latenciesA, latenciesB = read_csv(filename)
-    plot_cdf(latenciesA, latenciesB)
+# Plot CDF for wait times
+plt.figure(figsize=(5, 5))
+plt.plot(wait_times_A_sorted, cdf_wait_times_A, marker='o', linestyle='-', label='Demographic A')
+plt.plot(wait_times_B_sorted, cdf_wait_times_B, marker='o', linestyle='-', label='Demographic B')
+plt.title('Reverse Batch 0.1 Wait Time CDF')
+plt.xlabel('Wait Time (ms)')
+plt.ylabel('CDF')
+plt.xlim(0, 800)
+plt.legend()
+plt.grid(True)
+plt.show()
